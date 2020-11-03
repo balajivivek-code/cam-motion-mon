@@ -105,7 +105,10 @@ namespace WPEFramework
                 response["error"] = "Invalid parameter value";
                 returnResponse(false);
             }
-
+            std::string str;
+            LOGINFO("Calling");
+            onMotionCaptured(str);
+            LOGINFO("Returned %s ", str.c_str());
             returnResponse(true);
         }
 
@@ -116,6 +119,7 @@ namespace WPEFramework
          */
         void CamMotionMonitor::onMotionCaptured(string &url)
         {
+            LOGINFO("onMotionCaptured ++");
             JsonObject params;
             
             url = string("http://") + m_ipAddress + string("/");
@@ -131,6 +135,7 @@ namespace WPEFramework
             params.ToString(json);
             LOGINFO("Notify %s %s", event.c_str(), json.c_str());
             Notify(event, params);
+            LOGINFO("onMotionCaptured --");
         }
 
         /**
