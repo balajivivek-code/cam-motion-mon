@@ -121,7 +121,7 @@ namespace WPEFramework
         {
             LOGINFO("onMotionCaptured ++");
             JsonObject params;
-            
+
             url = string("http://") + m_ipAddress + string("/");
             if(!m_imagePath.empty())
                 url += (m_imagePath + string("/"));
