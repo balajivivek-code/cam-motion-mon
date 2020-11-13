@@ -48,7 +48,7 @@ namespace WPEFramework {
             //End methods
 
             //Begin events
-            virtual void onMotionCaptured(std::string &url);
+            virtual void onMotionCaptured(std::string &httpurl, std::string &rtspurl);
             //End events
 
             //Build QueryInterface implementation, specifying all possible interfaces to be returned.
@@ -74,8 +74,11 @@ namespace WPEFramework {
 
 
             std::string m_ipAddress;
+            std::string m_portno;
             std::string m_imagePath;
             std::string m_fileName;
+            std::string m_streamPath;
+            std::string m_streamName;
         };
     } // namespace Plugin
 } // namespace WPEFramework

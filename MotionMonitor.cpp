@@ -91,7 +91,9 @@ namespace WPEFramework
             LOGINFOMETHOD();
 
             if(!parameters.HasLabel("ipaddress") || \
-               !parameters.HasLabel("filename") \
+               !parameters.HasLabel("filename")  || \
+               !parameters.HasLabel("streamname")  || \
+               !parameters.HasLabel("portno") \
               ) {
                 response["error"] = "No sufficient params given";
                 returnResponse(false);
@@ -100,15 +102,25 @@ namespace WPEFramework
             if(parameters.HasLabel("imagepath"))
                 m_imagePath = parameters["imagepath"].String();
             m_fileName  = parameters["filename"].String();
+            
+            if(parameters.HasLabel("streampath"))
+                m_streamPath = parameters["streampath"].String();
+            m_streamName  = parameters["streamname"].String();
 
-            if(m_ipAddress.empty() || m_fileName.empty()) {
+            m_portno   = parameters["portno"].String();
+            if(m_ipAddress.empty() || m_fileName.empty() || m_streamName.empty() || m_portno.empty() ) {
                 response["error"] = "Invalid parameter value";
                 returnResponse(false);
             }
-            std::string str;
-            LOGINFO("Calling");
-            onMotionCaptured(str);
-            LOGINFO("Returned %s ", str.c_str());
+            std::string str,str1;
+            LOGINFO("Calling onMotionCaptured using str,str1 ");
+            onMotionCaptured(str, str1);
+            LOGINFO("Returned ++str== %s,++str1== %s ", str.c_str(),str1.c_str());
+            //std::string gst_cmd;
+            //gst_cmd = "gst-launch-1.0 rtspsrc location=" + str1 + " ! rtph264depay name=demux ! h264parse ! avdec_h264 ! videoconvert ! glimagesink &";
+            //LOGINFO("gst-launch command invoked after receiveng event == %s", gst_cmd.c_str());
+            //system(gst_cmd.c_str());
+//            system("gst-launch-1.0 rtspsrc location="rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov ! rtph264depay name=demux ! h264parse ! avdec_h264 ! videoconvert ! glimagesink &");
             returnResponse(true);
         }
 
@@ -117,24 +129,28 @@ namespace WPEFramework
          *
          * \param url http url of the image file.
          */
-        void CamMotionMonitor::onMotionCaptured(string &url)
+        void CamMotionMonitor::onMotionCaptured(string &httpurl, string &rtspurl)
         {
             LOGINFO("onMotionCaptured ++");
             JsonObject params;
 
-            url = string("http://") + m_ipAddress + string("/");
+            httpurl = string("http://") + m_ipAddress + string("/");
             if(!m_imagePath.empty())
-                url += (m_imagePath + string("/"));
-            url += m_fileName;
-
-            params["url"] = url;
+                httpurl += (m_imagePath + string("/"));
+            httpurl += m_fileName;
+            rtspurl = string("rtsp://") + m_ipAddress + string(":") + m_portno + string("/");
+            if(!m_streamPath.empty())
+                rtspurl += (m_streamPath + string("/"));
+            rtspurl += m_streamName;
+            params["httpurl"] = httpurl;
+            params["rtspurl"] = rtspurl;
 
             std::string json;
             const string event = "onMotionCaptured";
 
             params.ToString(json);
             LOGINFO("Notify %s %s", event.c_str(), json.c_str());
-            Notify(event, params);
+            Notify(_T(event), params);
             LOGINFO("onMotionCaptured --");
         }
 
